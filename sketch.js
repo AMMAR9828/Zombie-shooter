@@ -1,6 +1,8 @@
 var bg,bgImg;
 var player, shooterImg, shooter_shooting;
-var zombie_IMG
+var zombie_IMG;
+var bullet
+var bulletGroup, zombieGroup;
 
 
 function preload(){
@@ -32,6 +34,10 @@ player = createSprite(displayWidth-1150, displayHeight-300, 50, 50);
    player.debug = true
    player.setCollider("rectangle",0,0,300,300)
 
+   bulletGroup= new Group();
+   zombieGroup= new Group();
+
+
 
 }
 
@@ -53,26 +59,46 @@ if(keyDown("DOWN_ARROW")||touches.length>0){
 if(keyWentDown("space")){
  
   player.addImage(shooter_shooting)
- 
+  bullet = createSprite(player.x,player.y-25,15,3);
+  bullet.velocityX = 40
+  bullet.shapeColor="yellow";
+  player.depth=bullet.depth;
+  player.depth+=2
+  bulletGroup.add(bullet);
 }
 
 //player goes back to original standing image once we stop pressing the space bar
 else if(keyWentUp("space")){
   player.addImage(shooterImg)
 }
-Enemy();
+
+    if(bulletGroup.isTouching(zombieGroup)){
+      for(var i=0; i<zombieGroup.length; i++){
+        if(zombieGroup[i].isTouching(bulletGroup)){
+      zombieGroup[i].destroy();
+      bulletGroup.destroyEach();
+        }
+    }
+  }
+    Enemy();
+      
 
 drawSprites();
+
+fill("yellow")
 text(mouseX+","+mouseY, mouseX,mouseY);
 
 }
 
-function Enemy(){
-  if(frameCount % 100===0){
-    enemy = createSprite(displayWidth,random(100,500), 40,80);
+function Enemy(){ 
+  if(frameCount % 80===0){
+    enemy = createSprite(displayWidth,random(80,500), 600,80);
     enemy.addImage(zombie_IMG); 
     enemy.scale = 0.15
-    enemy.velocityX = -12
+    enemy.velocityX = -6
+    enemy.setCollider("rectangle",0,0,400,1000);
+    enemy.debug=true
+    zombieGroup.add(enemy);
   }
   
 }
