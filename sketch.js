@@ -1,6 +1,4 @@
-var PLAY =1
-var END =0
-var gameState = PLAY
+var gameState = "play";
 
 var bg,bgImg;
 var player, shooterImg, shooter_shooting;
@@ -68,16 +66,17 @@ player = createSprite(displayWidth-1150, displayHeight-300, 50, 50);
    heart3 = createSprite(120,30,5,5);
    heart3.scale=0.4
    heart3.addImage("heart3",life3);
-   
 
 
 }
 
 
 function draw() {
-  background(0); 
+  background(0);
+  
+  drawSprites();
 
-  if(gameState === PLAY){
+  if(gameState === "play"){
 
     if(life===3){
       heart3.visible=true;
@@ -98,8 +97,18 @@ function draw() {
       heart1.visible=false;
       heart2.visible=false;
       heart3.visible=false;
-      gameState=END;
+      loseSound.play();
+      gameState="end";
     }
+    if(bullets===0){
+      gameState="bullets";
+      loseSound.play();
+    }
+    if(score===100){
+      gameState="won";
+      winSound.play();
+    }
+
 
   //moving the player up and down and making the game mobile compatible using touches
 if(keyDown("UP_ARROW")||touches.length>0){
@@ -119,7 +128,8 @@ if(keyWentDown("space")){
   player.depth=bullet.depth;
   player.depth+=2
   bulletGroup.add(bullet);
-  bullets=bullets-1
+  bullets = bullets-1;
+  explosionSound.play();
 }
 
 //player goes back to original standing image once we stop pressing the space bar
@@ -132,6 +142,9 @@ else if(keyWentUp("space")){
         if(zombieGroup[i].isTouching(bulletGroup)){
       zombieGroup[i].destroy();
       bulletGroup.destroyEach();
+      bullets = bullets-1
+      score = score+5
+      explosionSound.play(); 
         }
     }
   }
@@ -140,29 +153,66 @@ else if(keyWentUp("space")){
       if(zombieGroup[i].isTouching(player)){
      zombieGroup[i].destroy();
      life=life-1
+     loseSound.play();
     
     }
    }
   }
     Enemy();
 }
-drawSprites();
 
-if(gameState === END){
+push();
+textSize(50);
+fill("orange");
+stroke("black");
+text("SCORE :"+score,740,40);
+pop();
+
+push();
+textSize(50);
+fill("blue");
+stroke("red");
+text("Bullets Left :"+ bullets,385,40);
+pop();
+
+if(gameState === "end"){
   bulletGroup.destroyEach();
   zombieGroup.destroyEach();
   player.destroy();
 
-  textSize(25);
+  push()
+  textSize(50);
   fill("Red");
   stroke("black");
   strokeWeight(6);
-  text("GAME OVER!!!",width/2,50);
+  text("GAME OVER!!!",width/2,500);
+  pop();
   
 }
+if(gameState==="bullets"){
+  textSize(50);
+  fill("green");
+  text("you ran out of Bullets !!!",width/2,height/2);
+  bulletGroup.destroyEach();
+  zombieGroup.destroyEach();
+  player.destroy();
+}
 
+if(gameState==="won"){
+  push();
+  textSize(50);
+  fill("gold");
+  text("YOU WON",width/2,500);
+  bulletGroup.destroyEach();
+  zombieGroup.destroyEach();
+  player.destroy();
+  pop();
+}
+
+push();
 fill("yellow")
 text(mouseX+","+mouseY, mouseX,mouseY);
+pop();
 
 }
 
